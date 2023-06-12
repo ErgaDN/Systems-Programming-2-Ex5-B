@@ -15,6 +15,15 @@ namespace ariel
         vector<int *> _prime;
 
     public:
+
+        MagicalContainer() {}
+        ~MagicalContainer() {
+            // Release memory for the int* pointers in _prime vector
+            for (auto ptr : _prime) {
+                delete ptr;
+            }
+        }
+
         void addElement(int element)
         {
             auto it = std::lower_bound(getVec().begin(), getVec().end(), element);
@@ -38,20 +47,27 @@ namespace ariel
 
         void removeElement(int element)
         {
+            getVec().erase(std::remove(getVec().begin(), getVec().end(), element), getVec().end());
+
+            // Remove the pointer to the int element from pointerVec
+            getPrime().erase(std::remove_if(getPrime().begin(), getPrime().end(), [&](int *ptr)
+                                            { return (*ptr) == element; }),
+                             getPrime().end());
         }
 
-        unsigned int size() const // size_t ??
+        size_t size() const // size_t ??
         {
             return _elements.size();
         }
 
         vector<int> &getVec() { return _elements; }
         vector<int *> &getPrime() { return _prime; }
+        // int getElem() { return }
 
-        bool operator==(const MagicalContainer &other) const
-        {
-            return _elements == other._elements && _prime == _prime;
-        }
+        // bool operator==(const MagicalContainer &other) const
+        // {
+        //     return _elements == other._elements && _prime == _prime;
+        // }
 
         static bool isPrime(int number)
         {
@@ -79,18 +95,18 @@ namespace ariel
         public:
             iterator(MagicalContainer &container) : _container(container), _index(0), _beginSide(true) {}
             iterator(iterator &other) : _container(other.getContainer()), _index(getIndex()), _beginSide(getBeginSide()) {}
-            virtual ~iterator() = default;
+            ~iterator() = default;
 
             MagicalContainer &getContainer() { return _container; }
-            size_t getIndex() { return _index; }
-            bool getBeginSide() { return _beginSide; }
+            size_t getIndex() const { return _index; }
+            bool getBeginSide() const { return _beginSide; }
 
             void setIndex(size_t idx) { _index = idx; }
             void setBeginSide(bool boolean) { _beginSide = boolean; }
 
             bool operator==(const iterator &other) const
             {
-                return _container == other._container && _index == other._index && _beginSide == other._beginSide;
+                return getIndex() == other.getIndex() && getBeginSide() == other.getBeginSide();
             }
 
             bool operator!=(const iterator &other) const
@@ -100,7 +116,7 @@ namespace ariel
 
             bool operator>(const iterator &other) const
             {
-                return _index > other._index || (_index == other._index && _beginSide != other._beginSide);
+                return getIndex() > other.getIndex() || (getIndex() == other.getIndex() && getBeginSide() != other.getBeginSide());
             }
 
             bool operator<(const iterator &other) const
@@ -109,31 +125,12 @@ namespace ariel
             }
 
             virtual int operator*() = 0;
-            // {
-            //     if (_index >= _container.size())
-            //     {
-            //         throw std::out_of_range("Iterator out of range");
-            //     }
-            //     return _container.elements[_index];
-            // }
 
             virtual iterator &operator++() = 0;
-            // {
-            //     ++_index;
-            //     return *this;
-            // }
 
             virtual iterator &begin() = 0;
-            // {
-            //     return AscendingIterator(_container);
-            // }
 
             virtual iterator &end() = 0;
-            // {
-            //     AscendingIterator iter(_container);
-            //     iter._index = _container.size();
-            //     return iter;
-            // }
         };
 
         class AscendingIterator : public iterator
@@ -150,6 +147,7 @@ namespace ariel
             {
                 if (getIndex() == getContainer().size())
                     throw runtime_error("iterator at the end");
+
                 this->setIndex(getIndex() + 1);
                 return *this;
             }
@@ -345,18 +343,25 @@ namespace ariel
 
             int operator*() override
             {
+                return *(getContainer().getPrime()[getIndex()]);
             }
 
             PrimeIterator &operator++() override
             {
+                setIndex(getIndex() + 1);
+                return *this;
             }
 
             PrimeIterator &begin() override
             {
+                setIndex(0);
+                return *this;
             }
 
             PrimeIterator &end() override
             {
+                setIndex(getContainer().getPrime().size());
+                return *this;
             }
 
             //     const MagicalContainer &container;
