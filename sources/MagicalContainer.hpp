@@ -3,6 +3,7 @@
 #include <vector>
 #include <cmath>
 #include <stdexcept>
+#include <algorithm>
 
 using namespace std;
 
@@ -16,12 +17,23 @@ namespace ariel
     public:
         void addElement(int element)
         {
+            auto it = std::lower_bound(getVec().begin(), getVec().end(), element);
+
+            if (it == getVec().end() || *it != element)
+            {
+                getVec().insert(it, element);
+            }
+
             if (isPrime(element))
             {
-                
+                int *ptr = new int(element); // Create a pointer to an int with the value of element
+                auto ptrIt = std::lower_bound(getPrime().begin(), getPrime().end(), ptr,
+                                              [](const int *a, const int *b)
+                                              {
+                                                  return *a < *b;
+                                              });
+                getPrime().insert(ptrIt, ptr);
             }
-            auto it = lower_bound(getVec().begin(), getVec().end(), element);
-            getVec().insert(it, element);
         }
 
         void removeElement(int element)
@@ -222,7 +234,6 @@ namespace ariel
                     {
                         (getIndex() == cntSize / 2 - 1) ? setIndex(cntSize) : setIndex(getIndex() + 1);
                     }
-                    
                 }
                 else // (cntSize % 2 == 1)
                 {
@@ -348,7 +359,6 @@ namespace ariel
             {
             }
 
-        
             //     const MagicalContainer &container;
             //     unsigned int currentIndex;
 
