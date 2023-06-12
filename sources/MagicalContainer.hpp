@@ -47,7 +47,12 @@ namespace ariel
 
         void removeElement(int element)
         {
-            getVec().erase(std::remove(getVec().begin(), getVec().end(), element), getVec().end());
+            // getVec().erase(std::remove(getVec().begin(), getVec().end(), element), getVec().end());
+            auto vecIt = std::remove(getVec().begin(), getVec().end(), element);
+            if (vecIt == getVec().end()) {
+                throw std::runtime_error("Element not found");
+            }
+            getVec().erase(vecIt, getVec().end());
 
             // Remove the pointer to the int element from pointerVec
             getPrime().erase(std::remove_if(getPrime().begin(), getPrime().end(), [&](int *ptr)
@@ -106,8 +111,28 @@ namespace ariel
 
             bool operator==(const iterator &other) const
             {
+                if (typeid(*this) != typeid(other)) 
+                {
+                    throw std::runtime_error("Incompatible iterator types");
+                }
                 return getIndex() == other.getIndex() && getBeginSide() == other.getBeginSide();
             }
+
+            iterator& operator=(const iterator& other) 
+            {
+                if (&_container != &other._container)
+                    throw std::runtime_error("Incompatible iterator types");
+                // if (typeid(*this) != typeid(other)) {
+                //     throw std::runtime_error("Incompatible iterator types");
+                // }
+
+                if (this != &other) {
+                    setIndex(other.getIndex());
+                }
+                
+                return *this;
+            }
+
 
             bool operator!=(const iterator &other) const
             {
@@ -160,6 +185,8 @@ namespace ariel
 
             AscendingIterator &end() override
             {
+                // if (getIndex() == getContainer().getVec().size())
+                //     throw runtime_error("increment beyond the end");
                 this->setIndex(getContainer().size());
                 return *this;
             }
@@ -266,6 +293,7 @@ namespace ariel
                 // {
 
                 // }
+                
                 this->setIndex(getContainer().size());
                 setBeginSide(false);
                 return *this;
@@ -348,6 +376,8 @@ namespace ariel
 
             PrimeIterator &operator++() override
             {
+                if (getIndex() == getContainer().getPrime().size())
+                    throw runtime_error("increment beyond the end");
                 setIndex(getIndex() + 1);
                 return *this;
             }
@@ -360,6 +390,7 @@ namespace ariel
 
             PrimeIterator &end() override
             {
+                
                 setIndex(getContainer().getPrime().size());
                 return *this;
             }
