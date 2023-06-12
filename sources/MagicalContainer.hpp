@@ -35,43 +35,9 @@ namespace ariel
             }
         }
 
-        void addElement(int element)
-        {
-            auto itr = std::lower_bound(getVec().begin(), getVec().end(), element);
+        void addElement(int element);
 
-            if (itr != getVec().end() && *itr == element)
-            {
-                return;
-            }
-
-            itr = getVec().insert(itr, element);
-
-            if (isPrime(element))
-            {
-                int *ptr = new int(element); // Create a pointer to an int with the value of element
-                auto ptrIt = std::lower_bound(getPrime().begin(), getPrime().end(), ptr,
-                                              [](const int *aIdx, const int *bIdx)
-                                              {
-                                                  return *aIdx < *bIdx;
-                                              });
-                getPrime().insert(ptrIt, ptr);
-            }
-        }
-
-        void removeElement(int element)
-        {
-            auto vecIt = std::remove(getVec().begin(), getVec().end(), element);
-            if (vecIt == getVec().end())
-            {
-                throw std::runtime_error("Element not found");
-            }
-            getVec().erase(vecIt, getVec().end());
-
-            // Remove the pointer to the int element from pointerVec
-            getPrime().erase(std::remove_if(getPrime().begin(), getPrime().end(), [&](const int *ptr)
-                                            { return (*ptr) == element; }),
-                             getPrime().end());
-        }
+        void removeElement(int element);
 
         size_t size() const
         {
@@ -81,21 +47,7 @@ namespace ariel
         vector<int> &getVec() { return _elements; }
         vector<int *> &getPrime() { return _prime; }
 
-        static bool isPrime(int number)
-        {
-            if (number < 2)
-            {
-                return false;
-            }
-            for (int i = 2; i <= std::sqrt(number); ++i)
-            {
-                if (number % i == 0)
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
+        static bool isPrime(int number);
 
         class iterator
         {
@@ -121,44 +73,15 @@ namespace ariel
             void setIndex(size_t idx) { _index = idx; }
             void setBeginSide(bool boolean) { _beginSide = boolean; }
 
-            bool operator==(const iterator &other) const
-            {
-                if (typeid(*this) != typeid(other))
-                {
-                    throw std::runtime_error("Incompatible iterator types");
-                }
-                return getIndex() == other.getIndex() && getBeginSide() == other.getBeginSide();
-            }
+            bool operator==(const iterator &other) const;
 
-            iterator &operator=(const iterator &other)
-            {
-                if (&_container != &other._container)
-                {
-                    throw std::runtime_error("Incompatible iterator types");
-                }
+            iterator &operator=(const iterator &other);
 
-                if (this != &other)
-                {
-                    setIndex(other.getIndex());
-                }
+            bool operator!=(const iterator &other) const;
 
-                return *this;
-            }
+            bool operator>(const iterator &other) const;
 
-            bool operator!=(const iterator &other) const
-            {
-                return !(*this == other);
-            }
-
-            bool operator>(const iterator &other) const
-            {
-                return getIndex() > other.getIndex() || (getIndex() == other.getIndex() && getBeginSide() != other.getBeginSide());
-            }
-
-            bool operator<(const iterator &other) const
-            {
-                return !(*this > other) && *this != other;
-            }
+            bool operator<(const iterator &other) const;
 
             virtual int operator*() = 0;
 
@@ -174,33 +97,13 @@ namespace ariel
         public:
             AscendingIterator(MagicalContainer &container) : iterator(container) {}
 
-            int operator*() override
-            {
-                return getContainer().getVec()[static_cast<vector<int>::size_type>(getIndex())];
-            }
+            int operator*() override;
 
-            AscendingIterator &operator++() override
-            {
-                if (this->getIndex() == this->getContainer().getVec().size())
-                {
-                    throw runtime_error("iterator at the end-1");
-                }
+            AscendingIterator &operator++() override;
 
-                this->setIndex(this->getIndex() + 1);
-                return *this;
-            }
+            AscendingIterator &begin() override;
 
-            AscendingIterator &begin() override
-            {
-                this->setIndex(0);
-                return *this;
-            }
-
-            AscendingIterator &end() override
-            {
-                this->setIndex(this->getContainer().getVec().size());
-                return *this;
-            }
+            AscendingIterator &end() override;
         };
 
         class SideCrossIterator : public iterator
@@ -208,63 +111,13 @@ namespace ariel
         public:
             SideCrossIterator(MagicalContainer &container) : iterator(container) {}
 
-            int operator*() override
-            {
-                if (getBeginSide())
-                {
-                    return getContainer().getVec()[getIndex()];
-                }
+            int operator*() override;
 
-                return getContainer().getVec()[getContainer().size() - 1 - getIndex()];
-            }
+            SideCrossIterator &operator++() override;
 
-            SideCrossIterator &operator++() override
-            {
-                size_t cntSize = getContainer().size();
-                if (getIndex() == cntSize)
-                {
-                    throw runtime_error("iterator at the end-2");
-                }
+            SideCrossIterator &begin() override;
 
-                if (cntSize % 2 == 0)
-                {
-                    if (!getBeginSide())
-                    {
-                        (getIndex() == cntSize / 2 - 1) ? setIndex(cntSize) : setIndex(getIndex() + 1);
-                    }
-                }
-                else // (cntSize % 2 == 1)
-                {
-                    if (getBeginSide())
-                    {
-                        if (getIndex() == cntSize / 2)
-                        {
-                            setIndex(cntSize);
-                        }
-                    }
-                    else
-                    {
-                        setIndex(getIndex() + 1);
-                    }
-                }
-                setBeginSide(!getBeginSide());
-                return *this;
-            }
-
-            SideCrossIterator &begin() override
-            {
-                this->setIndex(0);
-                this->setBeginSide(true);
-                return *this;
-            }
-
-            SideCrossIterator &end() override
-            {
-
-                this->setIndex(getContainer().size());
-                setBeginSide(false);
-                return *this;
-            }
+            SideCrossIterator &end() override;
         };
 
         class PrimeIterator : public iterator
@@ -272,33 +125,13 @@ namespace ariel
         public:
             PrimeIterator(MagicalContainer &container) : iterator(container) {}
 
-            int operator*() override
-            {
-                return *(getContainer().getPrime()[getIndex()]);
-            }
+            int operator*() override;
 
-            PrimeIterator &operator++() override
-            {
-                if (getIndex() == getContainer().getPrime().size())
-                {
-                    throw runtime_error("increment beyond the end");
-                }
-                setIndex(getIndex() + 1);
-                return *this;
-            }
+            PrimeIterator &operator++() override;
 
-            PrimeIterator &begin() override
-            {
-                setIndex(0);
-                return *this;
-            }
+            PrimeIterator &begin() override;
 
-            PrimeIterator &end() override
-            {
-
-                setIndex(getContainer().getPrime().size());
-                return *this;
-            }
+            PrimeIterator &end() override;
         };
     };
 }
