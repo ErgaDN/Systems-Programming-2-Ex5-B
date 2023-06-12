@@ -47,7 +47,6 @@ namespace ariel
 
         void removeElement(int element)
         {
-            // getVec().erase(std::remove(getVec().begin(), getVec().end(), element), getVec().end());
             auto vecIt = std::remove(getVec().begin(), getVec().end(), element);
             if (vecIt == getVec().end()) {
                 throw std::runtime_error("Element not found");
@@ -67,12 +66,6 @@ namespace ariel
 
         vector<int> &getVec() { return _elements; }
         vector<int *> &getPrime() { return _prime; }
-        // int getElem() { return }
-
-        // bool operator==(const MagicalContainer &other) const
-        // {
-        //     return _elements == other._elements && _prime == _prime;
-        // }
 
         static bool isPrime(int number)
         {
@@ -122,9 +115,6 @@ namespace ariel
             {
                 if (&_container != &other._container)
                     throw std::runtime_error("Incompatible iterator types");
-                // if (typeid(*this) != typeid(other)) {
-                //     throw std::runtime_error("Incompatible iterator types");
-                // }
 
                 if (this != &other) {
                     setIndex(other.getIndex());
@@ -165,15 +155,15 @@ namespace ariel
 
             int operator*() override
             {
-                return getContainer().getVec()[getIndex()];
+                return getContainer().getVec()[static_cast<vector<int>::size_type>(getIndex())];
             }
 
             AscendingIterator &operator++() override
             {
-                if (getIndex() == getContainer().size())
-                    throw runtime_error("iterator at the end");
+                if (this->getIndex() == this->getContainer().getVec().size())
+                    {throw runtime_error("iterator at the end-1");}
 
-                this->setIndex(getIndex() + 1);
+                this->setIndex(this->getIndex() + 1);
                 return *this;
             }
 
@@ -185,53 +175,10 @@ namespace ariel
 
             AscendingIterator &end() override
             {
-                // if (getIndex() == getContainer().getVec().size())
-                //     throw runtime_error("increment beyond the end");
-                this->setIndex(getContainer().size());
+                this->setIndex(this->getContainer().getVec().size());
                 return *this;
             }
 
-            // bool operator==(const AscendingIterator &other) const
-            // {
-            //     return _index == other._index;
-            // }
-
-            // bool operator>(const AscendingIterator &other) const
-            // {
-            //     return _index > other._index;
-            // }
-
-            // bool operator<(const AscendingIterator &other) const
-            // {
-            //     return _index < other._index;
-            // }
-
-            // int operator*() const
-            // {
-            //     if (_index >= _container.size())
-            //     {
-            //         throw std::out_of_range("Iterator out of range");
-            //     }
-            //     return _container._elements[_index];
-            // }
-
-            // AscendingIterator &operator++()
-            // {
-            //     ++_index;
-            //     return *this;
-            // }
-
-            // AscendingIterator begin() const
-            // {
-            //     return AscendingIterator(_container);
-            // }
-
-            // AscendingIterator end() const
-            // {
-            //     AscendingIterator iter(_container);
-            //     iter._index = _container.size();
-            //     return iter;
-            // }
         };
 
         class SideCrossIterator : public iterator
@@ -251,7 +198,7 @@ namespace ariel
             {
                 size_t cntSize = getContainer().size();
                 if (getIndex() == cntSize)
-                    throw runtime_error("iterator at the end");
+                    throw runtime_error("iterator at the end-2");
 
                 if (cntSize % 2 == 0)
                 {
@@ -287,81 +234,12 @@ namespace ariel
 
             SideCrossIterator &end() override
             {
-                // unsigned int cntSize = getContainer().size();
-                // this->setIndex(cntSize - 1);
-                // if (cntSize % 2 == 0)
-                // {
-
-                // }
                 
                 this->setIndex(getContainer().size());
                 setBeginSide(false);
                 return *this;
-                // this->setIndex(getContainer().size());
-                // return *this;
             }
 
-            //     const MagicalContainer &container;
-            //     unsigned int currentIndex;
-            //     bool reverse;
-
-            // public:
-            //     SideCrossIterator(const MagicalContainer &cont, bool rev = false)
-            //         : container(cont), currentIndex(0), reverse(rev) {}
-
-            //     bool operator!=(const SideCrossIterator &other) const
-            //     {
-            //         return currentIndex != other.currentIndex;
-            //     }
-
-            //     bool operator==(const SideCrossIterator &other) const
-            //     {
-            //         return currentIndex == other.currentIndex;
-            //     }
-
-            //     bool operator>(const SideCrossIterator &other) const
-            //     {
-            //         return currentIndex > other.currentIndex;
-            //     }
-
-            //     bool operator<(const SideCrossIterator &other) const
-            //     {
-            //         return currentIndex < other.currentIndex;
-            //     }
-
-            //     int operator*() const
-            //     {
-            //         if (currentIndex >= container.size())
-            //         {
-            //             throw std::out_of_range("Iterator out of range");
-            //         }
-            //         return container._elements[currentIndex];
-            //     }
-
-            //     SideCrossIterator &operator++()
-            //     {
-            //         if (reverse)
-            //         {
-            //             --currentIndex;
-            //         }
-            //         else
-            //         {
-            //             ++currentIndex;
-            //         }
-            //         return *this;
-            //     }
-
-            //     SideCrossIterator begin() const
-            //     {
-            //         return SideCrossIterator(container, false);
-            //     }
-
-            //     SideCrossIterator end() const
-            //     {
-            //         SideCrossIterator iter(container, true);
-            //         iter.currentIndex = container.size() - 1;
-            //         return iter;
-            //     }
         };
 
         class PrimeIterator : public iterator
@@ -395,84 +273,6 @@ namespace ariel
                 return *this;
             }
 
-            //     const MagicalContainer &container;
-            //     unsigned int currentIndex;
-
-            //     static bool isPrime(int number)
-            //     {
-            //         if (number < 2)
-            //         {
-            //             return false;
-            //         }
-            //         for (int i = 2; i <= std::sqrt(number); ++i)
-            //         {
-            //             if (number % i == 0)
-            //             {
-            //                 return false;
-            //             }
-            //         }
-            //         return true;
-            //     }
-
-            // public:
-            //     PrimeIterator(const MagicalContainer &cont) : container(cont), currentIndex(0)
-            //     {
-            //         while (currentIndex < container.size() && !isPrime(container._elements[currentIndex]))
-            //         {
-            //             ++currentIndex;
-            //         }
-            //     }
-
-            //     bool operator!=(const PrimeIterator &other) const
-            //     {
-            //         return currentIndex != other.currentIndex;
-            //     }
-
-            //     bool operator==(const PrimeIterator &other) const
-            //     {
-            //         return currentIndex == other.currentIndex;
-            //     }
-
-            //     bool operator>(const PrimeIterator &other) const
-            //     {
-            //         return currentIndex > other.currentIndex;
-            //     }
-
-            //     bool operator<(const PrimeIterator &other) const
-            //     {
-            //         return currentIndex < other.currentIndex;
-            //     }
-
-            //     int operator*() const
-            //     {
-            //         if (currentIndex >= container.size())
-            //         {
-            //             throw std::out_of_range("Iterator out of range");
-            //         }
-            //         return container._elements[currentIndex];
-            //     }
-
-            //     PrimeIterator &operator++()
-            //     {
-            //         ++currentIndex;
-            //         while (currentIndex < container.size() && !isPrime(container._elements[currentIndex]))
-            //         {
-            //             ++currentIndex;
-            //         }
-            //         return *this;
-            //     }
-
-            //     PrimeIterator begin() const
-            //     {
-            //         return PrimeIterator(container);
-            //     }
-
-            //     PrimeIterator end() const
-            //     {
-            //         PrimeIterator iter(container);
-            //         iter.currentIndex = container.size();
-            //         return iter;
-            //     }
         };
     };
 }

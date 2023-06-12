@@ -17,8 +17,10 @@ int main() {
     // Use AscendingIterator to display elements in ascending order
     std::cout << "Elements in ascending order:\n";
     MagicalContainer::AscendingIterator ascIter(container);
-    for (auto it = ascIter.begin(); it != ascIter.end(); ++it) {
-        std::cout << *it << ' ';   // 2 3 9 17 25
+    int i = 0;
+    for (auto it = ascIter.begin(); it != ascIter.end(); ++it, ++i) {
+        cout << "i = " << i << endl;
+        std::cout << *it << ' ' << endl;   // 2 3 9 17 25
     }
     std::cout << std::endl;
 
